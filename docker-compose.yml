@@ -58,3 +58,11 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=password
     depends_on:
       - db
+
+  # Adminer
+  adminer:
+    image: adminer
+    ports:
+      - 9090:8080
+    depends_on:
+      - db

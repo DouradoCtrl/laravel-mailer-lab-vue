@@ -3,8 +3,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
-import route from 'ziggy-js';
-import { Ziggy } from '../../ziggy';
+import { defineProps } from 'vue';
+import Pagination from '@/components/Pagination.vue'
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -13,11 +13,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const props = defineProps({
+    clientes: Object
+});
+
 function goToPage(page: number) {
-    router.get(route('clientes', { page }, undefined, Ziggy), {}, { preserveState: true });
+    if (page < 1 || page > props.clientes.last_page || page === props.clientes.current_page) return;
+    router.get(route('clientes.index', { page }), {}, { preserveScroll: true });
 }
 
-const { clientes } = usePage().props;
 </script>
 
 <template>
@@ -48,42 +52,7 @@ const { clientes } = usePage().props;
                 </table>
             </div>
             <!-- Paginação numérica elegante -->
-            <div class="flex justify-between items-center mt-4">
-                <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
-                    <button
-                        class="relative inline-flex items-center px-3 py-1 border border-sidebar-border/70 even:bg-black/5 odd:bg-transparent text-sm font-medium text-gray-700 hover:bg-black/10 dark:even:bg-white/5 dark:odd:bg-transparent dark:border-sidebar-border dark:text-gray-100 dark:hover:bg-white/10 rounded-l-md"
-                        :disabled="!clientes.prev_page_url"
-                        @click="goToPage(clientes.current_page - 1)"
-                        aria-label="Anterior"
-                    >
-                        Anterior
-                    </button>
-                    <template v-for="page in clientes.last_page" :key="page">
-                        <button
-                            class="relative inline-flex items-center px-3 py-1 border-t border-b border-l border-sidebar-border/70 even:bg-black/5 odd:bg-transparent text-sm font-medium text-gray-700 hover:bg-black/10 dark:even:bg-white/5 dark:odd:bg-transparent dark:border-sidebar-border dark:text-gray-100 dark:hover:bg-white/10"
-                            :class="{
-                                'z-10 border-x border-blue-500 bg-blue-100/80 text-blue-700 dark:bg-blue-900/60 dark:text-white': page === clientes.current_page
-                            }"
-                            @click="goToPage(page)"
-                            :disabled="page === clientes.current_page"
-                            style="border-radius: 0;"
-                        >
-                            {{ page }}
-                        </button>
-                    </template>
-                    <button
-                        class="relative inline-flex items-center px-3 py-1 border border-sidebar-border/70 even:bg-black/5 odd:bg-transparent text-sm font-medium text-gray-700 hover:bg-black/10 dark:even:bg-white/5 dark:odd:bg-transparent dark:border-sidebar-border dark:text-gray-100 dark:hover:bg-white/10 rounded-r-md"
-                        :disabled="!clientes.next_page_url"
-                        @click="goToPage(clientes.current_page + 1)"
-                        aria-label="Próxima"
-                    >
-                        Próxima
-                    </button>
-                </nav>
-                <span class="text-sm text-gray-600 dark:text-gray-300">
-                    {{ clientes.from }} a {{ clientes.to }} de {{ clientes.total }}
-                </span>
-            </div>
+            <Pagination :data="clientes" @page-change="goToPage" />
         </div>
     </AppLayout>
 </template>

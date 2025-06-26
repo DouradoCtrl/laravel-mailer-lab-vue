@@ -14,7 +14,7 @@ Route::get('dashboard', function () {
 
 Route::get('clientes', [ClienteController::class, 'index'])
     ->middleware(['auth', 'verified'])
-    ->name('clientes');
+    ->name('clientes.index');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

@@ -29,7 +29,7 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Users',
+        title: 'Usuários',
         href: '/users',
         icon: Users,
     },

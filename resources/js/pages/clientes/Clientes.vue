@@ -4,7 +4,25 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 import { defineProps } from 'vue';
-import Pagination from '@/components/Pagination.vue'
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -17,10 +35,7 @@ const props = defineProps({
     clientes: Object
 });
 
-function goToPage(page: number) {
-    if (page < 1 || page > props.clientes.last_page || page === props.clientes.current_page) return;
-    router.get(route('clientes.index', { page }), {}, { preserveScroll: true });
-}
+
 
 </script>
 
@@ -30,29 +45,62 @@ function goToPage(page: number) {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-4 p-4">
             <div class="rounded-xl overflow-hidden border border-sidebar-border/70 dark:border-sidebar-border">
-                <table class="min-w-full table-fixed">
-                    <thead class="bg-black/5 text-black dark:bg-white/5 dark:text-white">
-                        <tr>
-                            <th class="w-16 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">ID</th>
-                            <th class="w-40 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Nome</th>
-                            <th class="w-56 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Email</th>
-                            <th class="w-40 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Telefone</th>
-                            <th class="w-40 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Data Nascimento</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white-200 bg-transparent dark:bg-transparent">
-                        <tr v-for="(cliente, idx) in clientes.data" :key="cliente.id" class="even:bg-black/5 odd:bg-transparent dark:even:bg-white/5 dark:odd:bg-transparent">
-                            <td class="px-6 py-4 whitespace-nowrap dark:text-gray-200 ">{{ clientes.from + idx }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap dark:text-gray-200 ">{{ cliente.nome }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap dark:text-gray-200 ">{{ cliente.email }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap dark:text-gray-200 ">{{ cliente.telefone }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap dark:text-gray-200 ">{{ cliente.data_nascimento }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Id</TableHead>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>E-mail</TableHead>
+                        <TableHead>Telefone</TableHead>
+                        <TableHead>Data de Nascimento</TableHead>
+                        <TableHead>
+                        Pontos
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                <TableRow v-for="(cliente, idx) in clientes.data" :key="cliente.id">
+                    <TableCell class="font-medium">
+                    {{ clientes.from + idx }}
+                    </TableCell>
+                    <TableCell>{{ cliente.nome }}</TableCell>
+                    <TableCell>{{ cliente.email }}</TableCell>
+                    <TableCell>{{ cliente.telefone }}</TableCell>
+                    <TableCell>{{ cliente.data_nascimento }}</TableCell>
+                    <TableCell>
+                        0
+                    </TableCell>
+                </TableRow>
+                </TableBody>
+            </Table>
             </div>
+            <TableCaption>Todos os clientes.</TableCaption>
             <!-- Paginação numérica elegante -->
-            <Pagination :data="clientes" @page-change="goToPage" />
+            <Pagination
+            :items-per-page="props.clientes.per_page"
+            :total="props.clientes.total"
+            :default-page="props.clientes.current_page"
+            @update:page="page => router.get(route('clientes.index', { page }), {}, { preserveScroll: true })"
+            >
+                <PaginationContent v-slot="{ items }">
+                    <PaginationPrevious @click="goToPage(page - 1)"/>
+
+                    <template v-for="(item, index) in items" :key="index">
+                        <PaginationItem
+                            v-if="item.type === 'page'"
+                            :value="item.value"
+                            :is-active="item.value === page"
+                            @click="goToPage(item.value)"
+                        >
+                            {{ item.value }}
+                        </PaginationItem>
+                    </template>
+
+                    <PaginationEllipsis v-if="items.some(i => i.type === 'ellipsis')" />
+                    <PaginationNext @click="goToPage(page + 1)"/>
+                </PaginationContent>
+            </Pagination>
         </div>
     </AppLayout>
 </template>

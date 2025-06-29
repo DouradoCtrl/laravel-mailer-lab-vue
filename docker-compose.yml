@@ -44,9 +44,9 @@ services:
       - .docker/db/data:/var/lib/postgresql/data
       - .docker/db/sql:/docker-entrypoint-initdb.d
     environment:
-      - POSTGRES_USER=refactorian
-      - POSTGRES_PASSWORD=refactorian
-      - POSTGRES_DB=refactorian
+      - POSTGRES_USER=laravel
+      - POSTGRES_PASSWORD=laravel
+      - POSTGRES_DB=laravel
 
   # pgAdmin
   pgadmin:
